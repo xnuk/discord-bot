@@ -1,0 +1,7 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "discord-bot",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-08-07",
+	"observability": { "enabled": true }
+}

@@ -1,0 +1,11 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "@xnuk/tsconfig/base",
+	"compilerOptions": {
+		"noEmit": true,
+		"target": "es2022",
+		"lib": ["es2022"],
+		"types": ["./worker-configuration.d.ts", "@types/service-worker-mock"],
+		"erasableSyntaxOnly": true
+	}
+}

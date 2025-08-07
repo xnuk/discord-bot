@@ -1,0 +1,28 @@
+{
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"vcs": { "enabled": true, "useIgnoreFile": true, "clientKind": "git" },
+	"linter": {
+		"rules": {
+			"recommended": true,
+			"a11y": "on",
+			"complexity": "on",
+			"correctness": "on",
+			"performance": "on",
+			"security": "on",
+			"style": "on",
+			"suspicious": "on"
+		},
+		"domains": {
+			"react": "all"
+		}
+	},
+	"formatter": { "useEditorconfig": true },
+	"javascript": {
+		"formatter": {
+			"semicolons": "asNeeded",
+			"arrowParentheses": "asNeeded",
+			"quoteStyle": "single",
+			"jsxQuoteStyle": "double"
+		}
+	}
+}
