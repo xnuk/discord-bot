@@ -3,5 +3,6 @@
 	"name": "discord-bot",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-08-07",
-	"observability": { "enabled": true }
+	"observability": { "enabled": true },
+	"workers_dev": false
 }
