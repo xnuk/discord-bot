@@ -60,9 +60,8 @@ export const solvedac = async (
 		.slice(0, 5)
 		.map(v =>
 			[
-				`*${levels[v.level]} ${v.problemId} ${v.titleKo}`,
+				`*${levels[v.level]} [${v.problemId} ${v.titleKo}](https://www.acmicpc.net/problem/${v.problemId})`,
 				v.tags.map(tag => `#${tag.key}`).join(' '),
-				`https://www.acmicpc.net/problem/${v.problemId}`,
 			].join('\n'),
 		)
 		.join('\n\n')
