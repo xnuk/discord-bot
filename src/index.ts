@@ -78,36 +78,31 @@ const discordBot = async (req: Request, env: Env): Promise<Response> => {
 	) {
 		// string only for now
 		const options = {} as Record<string, string | undefined>
-		request.data.options?.map(entry => {
+		for (const entry of request.data.options || []) {
 			if (entry.type === STRING_TYPE) {
 				options[entry.name] = entry.value
 			}
-		})
+		}
 
 		const commandName = request.data.name.toLowerCase()
-		let content: string | null = null
+		let data: APIInteractionResponseCallbackData | null = null
 
 		if (commandName === 'solved-ac') {
 			try {
-				content = await commandSolvedAc(options)
+				data = await commandSolvedAc(options)
 			} catch {
 				return responseServerError()
 			}
 		}
 
-		if (content == null) {
+		if (data == null) {
 			return responseInvalidRequest()
 		}
 
-		const response: {
-			type: number
-			data: APIInteractionResponseCallbackData
-		} = {
+		return json({
 			type: CHANNEL_MESSAGE_WITH_SOURCE,
-			data: { content },
-		}
-
-		return json(response)
+			data,
+		})
 	}
 
 	return responseInvalidRequest()
@@ -115,7 +110,7 @@ const discordBot = async (req: Request, env: Env): Promise<Response> => {
 
 const commandSolvedAc = (
 	options: Record<string, string | undefined>,
-): Promise<string | null> => {
+): Promise<APIInteractionResponseCallbackData | null> => {
 	// biome-ignore lint/complexity/useLiteralKeys: false positive
 	const query = options['query']
 	// biome-ignore lint/complexity/useLiteralKeys: false positive
