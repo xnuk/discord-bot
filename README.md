@@ -15,7 +15,7 @@ pnpm wrangler secret put DISCORD_APPLICATION_ID
 # Requires node >=23.6.0, or ^22.18.0.
 node src/register.ts
 
-pnpm deploy
+pnpm run deploy
 ```
 
 ## Development
