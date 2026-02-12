@@ -19,6 +19,12 @@ interface Problems {
 	items: Item[]
 }
 
+type Warning = { type: 'same'; data: number } | null
+
+interface Metadata {
+	warn?: Warning
+}
+
 interface Item {
 	problemId: number
 	titleKo: string
@@ -27,6 +33,7 @@ interface Item {
 	level: number
 	averageTries: number
 	tags: Tag[]
+	metadata: Metadata
 }
 
 interface Tag {
@@ -50,7 +57,9 @@ r5 r4 r3 r2 r1
 	.split(/\s+/)
 
 const toField = (v: Item): APIEmbedField => ({
-	name: `*${levels[v.level]} ${v.problemId}`,
+	name: `*${levels[v.level]} ${v.problemId}${
+		v.metadata.warn == null ? '' : ':warning:'
+	}`,
 	value: [
 		`[${v.titleKo || v.problemId}](https://www.acmicpc.net/problem/${v.problemId})`,
 		v.tags.map(tag => `#${tag.key}`).join(' '),
