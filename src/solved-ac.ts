@@ -80,7 +80,9 @@ export const solvedac = async (
 	qs.set('page', '1')
 
 	const url = `https://solved.ac/api/v3/search/problem?${qs}`
-	const data = (await fetch(url)
+	const data = (await fetch(url, {headers: {
+		'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:150.0) Gecko/20100101 Firefox/150.0'
+	}})
 		.then(v => v.json())
 		.catch(() => null)) as Problems | null
 	if (data == null || data.items.length === 0) {
