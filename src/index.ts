@@ -78,7 +78,7 @@ const discordBot = async (req: Request, env: Env): Promise<Response> => {
 	) {
 		// string only for now
 		const options = {} as Record<string, string | undefined>
-		for (const entry of request.data.options || []) {
+		for (const entry of request.data.options ?? []) {
 			if (entry.type === STRING_TYPE) {
 				options[entry.name] = entry.value
 			}
@@ -111,9 +111,7 @@ const discordBot = async (req: Request, env: Env): Promise<Response> => {
 const commandSolvedAc = (
 	options: Record<string, string | undefined>,
 ): Promise<APIInteractionResponseCallbackData | null> => {
-	// biome-ignore lint/complexity/useLiteralKeys: false positive
 	const query = options['query']
-	// biome-ignore lint/complexity/useLiteralKeys: false positive
 	const sort = options['sort']
 
 	if (query != null) {
@@ -148,5 +146,4 @@ const app: { readonly fetch: (req: Request, env: Env) => Promise<Response> } = {
 	fetch: server,
 }
 
-// biome-ignore lint/style/noDefaultExport: Cloudflare Worker loves to do this
 export default app

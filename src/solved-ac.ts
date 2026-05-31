@@ -61,7 +61,7 @@ const toField = (v: Item): APIEmbedField => ({
 		v.metadata.warn == null ? '' : ':warning:'
 	}`,
 	value: [
-		`[${v.titleKo || v.problemId}](https://www.acmicpc.net/problem/${v.problemId})`,
+		`[${v.titleKo !== '' ? v.titleKo : v.problemId}](https://www.acmicpc.net/problem/${v.problemId})`,
 		v.tags.map(tag => `#${tag.key}`).join(' '),
 	].join('\n'),
 	inline: true,
@@ -71,7 +71,9 @@ export const solvedac = async (
 	query: string,
 	sort?: string,
 ): Promise<APIInteractionResponseCallbackData> => {
-	const [sortBy = 'id', direction = 'asc'] = (sort || 'id').split(' ')
+	const [sortBy = 'id', direction = 'asc'] = (
+		sort == null || sort === '' ? 'id' : sort
+	).split(' ')
 
 	const qs = new URLSearchParams()
 	qs.set('query', query)
@@ -79,7 +81,9 @@ export const solvedac = async (
 	qs.set('direction', direction)
 	qs.set('page', '1')
 
-	const url = `https://solved.ac/api/v3/search/problem?${qs}`
+	const querystring = qs.toString()
+
+	const url = `https://solved.ac/api/v3/search/problem?${querystring}`
 	const data = (await fetch(url, {
 		headers: {
 			'user-agent':
@@ -100,7 +104,7 @@ export const solvedac = async (
 				type: COMPONENT_BUTTON,
 				label: '더 보기',
 				style: BUTTON_STYLE_LINK,
-				url: `https://solved.ac/problems?${qs}`,
+				url: `https://solved.ac/problems?${querystring}`,
 			},
 		],
 	}

@@ -1,21 +1,19 @@
 #!/usr/bin/env node
 
-// biome-ignore lint/correctness/noNodejsModules: this is node script
 import { loadEnvFile } from 'node:process'
 import type { APIApplicationCommand } from 'discord-api-types/v10'
 
 loadEnvFile()
 
 const { DISCORD_TOKEN, DISCORD_APPLICATION_ID, DISCORD_TEST_GUILD_ID } =
-	// biome-ignore lint/style/noProcessEnv: this is node script
 	process.env
-if (!DISCORD_APPLICATION_ID) {
+if (DISCORD_APPLICATION_ID == null || DISCORD_APPLICATION_ID === '') {
 	throw new Error('DISCORD_APPLICATION_ID is not given')
 }
-if (!DISCORD_TOKEN) {
+if (DISCORD_TOKEN == null || DISCORD_TOKEN === '') {
 	throw new Error('DISCORD_TOKEN is not given')
 }
-if (!DISCORD_TEST_GUILD_ID) {
+if (DISCORD_TEST_GUILD_ID == null || DISCORD_TEST_GUILD_ID === '') {
 	throw new Error('DISCORD_TEST_GUILD_ID is not given')
 }
 
@@ -71,7 +69,6 @@ if (import.meta.main) {
 	})
 		.then(v => v.json())
 		.then(v => {
-			// biome-ignore lint/suspicious/noConsole: this is node script
 			console.log(JSON.stringify(v, null, 2))
 		})
 }
