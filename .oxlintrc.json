@@ -1,0 +1,21 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["eslint", "typescript", "unicorn", "oxc", "import", "promise"],
+	"rules": {
+		"curly": ["error", "multi-line", "consistent"],
+		"eqeqeq": ["error", "always", { "null": "ignore" }],
+		"typescript/strict-boolean-expressions": [
+			"error",
+			{
+				"allowAny": false,
+				"allowNullableBoolean": false,
+				"allowNullableEnum": false,
+				"allowNullableNumber": false,
+				"allowNullableObject": false,
+				"allowNullableString": false,
+				"allowNumber": false,
+				"allowString": false
+			}
+		]
+	}
+}
