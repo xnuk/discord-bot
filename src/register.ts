@@ -56,6 +56,20 @@ const commandSolvedAc: Partial<APIApplicationCommand> = {
 	],
 }
 
+const commandRain: Partial<APIApplicationCommand> = {
+	type: SlashCommand,
+	name: 'rain',
+	description: '기상청 초단기 강수 예측',
+	options: [
+		{
+			type: StringType,
+			name: 'place',
+			description: '장소',
+			required: true,
+		},
+	],
+}
+
 const url = `https://discord.com/api/v10/applications/${DISCORD_APPLICATION_ID}/guilds/${DISCORD_TEST_GUILD_ID}/commands`
 
 if (import.meta.main) {
@@ -65,7 +79,7 @@ if (import.meta.main) {
 			authorization: `Bot ${DISCORD_TOKEN}`,
 		},
 		method: 'PUT',
-		body: JSON.stringify([commandSolvedAc]),
+		body: JSON.stringify([commandSolvedAc, commandRain]),
 	})
 		.then(v => v.json())
 		.then(v => {

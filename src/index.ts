@@ -1,10 +1,12 @@
 import type {
 	APIInteraction,
 	APIInteractionResponseCallbackData,
+	APIApplicationCommandInteraction,
 } from 'discord-api-types/v10'
 import { verifyKey } from 'discord-interactions'
 
 import { solvedac } from './solved-ac.ts'
+import { rain } from './rain.ts'
 
 const text = (text: string, status = 200) =>
 	new Response(text, {
@@ -26,7 +28,11 @@ const responseInvalidRequest = () => json({ error: 'invalid request' }, 400)
 const responseNotFound = () => json({ error: 'not found' }, 404)
 const responseServerError = () => json({ error: 'server error' }, 500)
 
-const server = async (req: Request, env: Env): Promise<Response> => {
+const server = async (
+	req: Request,
+	env: Env,
+	ctx: ExecutionContext,
+): Promise<Response> => {
 	const method = req.method.toUpperCase()
 	const path = new URL(req.url).pathname
 
@@ -39,7 +45,7 @@ const server = async (req: Request, env: Env): Promise<Response> => {
 	}
 
 	if (method === 'POST') {
-		return await discordBot(req, env)
+		return await discordBot(req, env, ctx)
 	}
 
 	return responseInvalidRequest()
@@ -52,7 +58,7 @@ const APPLICATION_COMMAND = 2
 // InteractionResponseType
 const PONG = 1
 const CHANNEL_MESSAGE_WITH_SOURCE = 4
-// const DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE = 5
+const DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE = 5
 // const DEFERRED_UPDATE_MESSAGE = 6
 // const UPDATE_MESSAGE = 7
 
@@ -62,7 +68,11 @@ const STRING_TYPE = 3
 // ApplicationCommandType
 const SLASH_COMMAND = 1
 
-const discordBot = async (req: Request, env: Env): Promise<Response> => {
+const discordBot = async (
+	req: Request,
+	env: Env,
+	ctx: ExecutionContext,
+): Promise<Response> => {
 	const request = await verifyRequest(req, env).catch(() => null)
 	if (request == null) {
 		return responseInvalidRequest()
@@ -103,9 +113,31 @@ const discordBot = async (req: Request, env: Env): Promise<Response> => {
 				data,
 			})
 		}
+
+		if (commandName === 'rain') {
+			ctx.waitUntil(danglingData(request, commandRain(options, env)))
+			return json({ type: DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE })
+		}
 	}
 
 	return responseInvalidRequest()
+}
+
+const danglingData = async (
+	request: APIApplicationCommandInteraction,
+	data: Promise<FormData | null>,
+) => {
+	const url = `https://discord.com/api/v10/webhooks/${request.application_id}/${request.token}/messages/@original`
+	const payload = await data.catch(() => null)
+	if (payload == null) {
+		await fetch(url, {
+			method: 'PATCH',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ content: '서버 에러' }),
+		})
+	} else {
+		await fetch(url, { method: 'PATCH', body: payload })
+	}
 }
 
 const commandSolvedAc = (
@@ -118,6 +150,36 @@ const commandSolvedAc = (
 		return solvedac(query, sort)
 	}
 	return Promise.resolve(null)
+}
+
+const commandRain = async (
+	options: Record<string, string | undefined>,
+	env: Env,
+): Promise<FormData | null> => {
+	const place = options['place']
+	if (place != null) {
+		const result = await rain(env.KAKAO_REST_API_TOKEN, place)
+		const form = new FormData()
+		const payload: APIInteractionResponseCallbackData = {
+			content:
+				'초단기 강수 예측 (최대 12시간, 10분 단위 막대, 1시간 단위 눈금)',
+		}
+
+		if (typeof result === 'string') {
+			payload.content = result
+		} else {
+			payload.attachments = [{ id: 0, filename: 'rain.png' }]
+			form.append(
+				'files[0]',
+				new Blob([result], { type: 'image/png' }),
+				'rain.png',
+			)
+		}
+
+		form.append('payload_json', JSON.stringify(payload))
+		return form
+	}
+	return null
 }
 
 const verifyRequest = async (
@@ -142,7 +204,13 @@ const verifyRequest = async (
 	}
 }
 
-const app: { readonly fetch: (req: Request, env: Env) => Promise<Response> } = {
+const app: {
+	readonly fetch: (
+		req: Request,
+		env: Env,
+		ctx: ExecutionContext,
+	) => Promise<Response>
+} = {
 	fetch: server,
 }
 
