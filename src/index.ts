@@ -85,24 +85,24 @@ const discordBot = async (req: Request, env: Env): Promise<Response> => {
 		}
 
 		const commandName = request.data.name.toLowerCase()
-		let data: APIInteractionResponseCallbackData | null = null
 
 		if (commandName === 'solved-ac') {
+			let data: APIInteractionResponseCallbackData | null = null
 			try {
 				data = await commandSolvedAc(options)
 			} catch {
 				return responseServerError()
 			}
-		}
 
-		if (data == null) {
-			return responseInvalidRequest()
-		}
+			if (data == null) {
+				return responseInvalidRequest()
+			}
 
-		return json({
-			type: CHANNEL_MESSAGE_WITH_SOURCE,
-			data,
-		})
+			return json({
+				type: CHANNEL_MESSAGE_WITH_SOURCE,
+				data,
+			})
+		}
 	}
 
 	return responseInvalidRequest()
