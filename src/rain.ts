@@ -213,12 +213,17 @@ const getRainData = async (lat: number, lon: number) => {
 export const rain = async (
 	kakaoToken: string,
 	keyword: string,
-): Promise<string | Buffer> => {
-	const { lat, lng } = await mapSearch(kakaoToken, keyword)
+): Promise<{ message: string; graph?: Buffer }> => {
+	const { lat, lng, address } = await mapSearch(kakaoToken, keyword)
 	const { data } = await getRainData(+lat, +lng)
 
-	if (data.every(v => v === 0)) return '12시간 이내 비소식이 없습니다.'
+	if (data.every(v => v === 0)) {
+		return { message: `[${address}]\n12시간 이내 비소식이 없습니다.` }
+	}
 
 	const graph = drawGraph(data)
-	return graph
+	return {
+		message: `[${address}]\n초단기 강수 예측 (최대 12시간, 10분 단위 막대, 1시간 단위 눈금)`,
+		graph,
+	}
 }

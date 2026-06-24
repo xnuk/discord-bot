@@ -8,21 +8,25 @@ const request = (token: string, path: string) =>
 
 const converter = (
 	response: unknown,
-): Promise<{ lng: string; lat: string }> => {
+): Promise<{ lng: string; lat: string; address: string }> => {
 	const resp = response as {
-		documents?: { x: string; y: string }[]
+		documents?: { x: string; y: string; address_name: string }[]
 	} | null
 
 	const coord = resp?.documents?.[0]
 	return coord != null
-		? Promise.resolve({ lng: coord.x, lat: coord.y })
+		? Promise.resolve({
+				lng: coord.x,
+				lat: coord.y,
+				address: coord.address_name,
+			})
 		: Promise.reject(resp)
 }
 
 export const search = (
 	token: string,
 	query: string,
-): Promise<{ lng: string; lat: string }> => {
+): Promise<{ lng: string; lat: string; address: string }> => {
 	const encodedQuery = encodeURIComponent(query)
 
 	const address = request(

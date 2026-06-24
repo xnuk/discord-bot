@@ -161,17 +161,14 @@ const commandRain = async (
 		const result = await rain(env.KAKAO_REST_API_TOKEN, place)
 		const form = new FormData()
 		const payload: APIInteractionResponseCallbackData = {
-			content:
-				'초단기 강수 예측 (최대 12시간, 10분 단위 막대, 1시간 단위 눈금)',
+			content: result.message,
 		}
 
-		if (typeof result === 'string') {
-			payload.content = result
-		} else {
+		if (result.graph != null) {
 			payload.attachments = [{ id: 0, filename: 'rain.png' }]
 			form.append(
 				'files[0]',
-				new Blob([result], { type: 'image/png' }),
+				new Blob([result.graph], { type: 'image/png' }),
 				'rain.png',
 			)
 		}
