@@ -5,5 +5,6 @@
 	"compatibility_date": "2025-08-07",
 	"observability": { "enabled": true },
 	"workers_dev": false,
-	"compatibility_flags": ["nodejs_compat"]
+	"compatibility_flags": ["nodejs_compat"],
+	"minify": true
 }
