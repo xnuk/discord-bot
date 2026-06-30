@@ -124,8 +124,6 @@ export class Indexed {
 	pack(): Uint8Array {
 		if (this.result != null) return this.result
 
-		// fillFilter(this.dat, this.datWidth, this.height, 1)
-
 		const chunkIDAT = chunk(IDAT, deflateSync(this.dat, deflateOptions))
 		const result = concat(
 			MAGIC,
