@@ -1,6 +1,6 @@
 // Mostly from https://gist.github.com/kiding/5233f0ffe179d36b16dfc9f3cb908a31
 
-import { PNG } from 'pngjs'
+import { Indexed as IndexedPNG } from './png/indexed.ts'
 import { search as mapSearch } from './daummap.ts'
 
 const toXY = (lat: number, lon: number) => {
@@ -81,7 +81,7 @@ const processRainData = (resultList: readonly [string, string, number][]) => {
 	return { data, toTime }
 }
 
-const drawGraph = (data: number[]) => {
+const drawGraph = (data: number[]): Uint8Array => {
 	const barWidth = 8
 	const bars = data.length
 	const barScale = 100
@@ -96,46 +96,30 @@ const drawGraph = (data: number[]) => {
 	const width = contentWidth + paddingX * 2
 	const height = contentHeight + paddingY * 2
 
-	const png = new PNG({ width, height, colorType: 2 })
+	const colors: [number, number, number][] = []
 
-	const blue = (offset: number) => {
-		png.data[offset] = 78
-		png.data[offset + 1] = 121
-		png.data[offset + 2] = 165
-		png.data[offset + 3] = 255
-	}
+	// const white = 0
+	colors.push([255, 255, 255])
 
-	const white = (offset: number) => {
-		png.data[offset] = 255
-		png.data[offset + 1] = 255
-		png.data[offset + 2] = 255
-		png.data[offset + 3] = 255
-	}
+	const blue = 1
+	colors.push([78, 121, 165])
 
-	const gray = (offset: number) => {
-		png.data[offset] = 180
-		png.data[offset + 1] = 180
-		png.data[offset + 2] = 180
-		png.data[offset + 3] = 255
-	}
+	const gray = 2
+	colors.push([180, 180, 180])
 
-	const toOffset = (x: number, y: number) => (y * width + x) * 4
+	const png = new IndexedPNG({ width, height, colors })
 
 	for (let x = 0; x < width; ++x) {
 		// y-axis
 		if (paddingX - tickThick <= x && x < paddingX) {
 			const downBound = contentHeight + paddingY + tickThick + tickY
 			for (let y = 0; y < height; ++y) {
-				if (paddingY <= y && y < downBound) gray(toOffset(x, y))
-				else white(toOffset(x, y))
+				if (paddingY <= y && y < downBound) png.drawPoint(x, y, gray)
 			}
 			continue
 		}
 
 		if (x < paddingX || contentWidth + paddingX <= x) {
-			for (let y = 0; y < height; ++y) {
-				white(toOffset(x, y))
-			}
 			continue
 		}
 
@@ -144,14 +128,12 @@ const drawGraph = (data: number[]) => {
 		const value = data[index] ?? 0
 		const currentHeight = Math.min(Math.round(value * barScale), contentHeight)
 		for (let y = 0; y < height; ++y) {
-			const offset = toOffset(x, y)
-
 			// x-axis
 			if (
 				contentHeight + paddingY <= y &&
 				y < contentHeight + paddingY + tickThick
 			) {
-				gray(offset)
+				png.drawPoint(x, y, gray)
 				continue
 			}
 
@@ -162,7 +144,7 @@ const drawGraph = (data: number[]) => {
 				contentHeight + paddingY + tickThick <= y &&
 				y < contentHeight + paddingY + tickThick + tickY
 			) {
-				gray(offset)
+				png.drawPoint(x, y, gray)
 				continue
 			}
 
@@ -171,19 +153,16 @@ const drawGraph = (data: number[]) => {
 				contentHeight + paddingY <= y ||
 				barWidth - miniX <= tickThick
 			) {
-				white(offset)
 				continue
 			}
 
 			if (contentHeight - (y - paddingY) <= currentHeight) {
-				blue(offset)
-			} else {
-				white(offset)
+				png.drawPoint(x, y, blue)
 			}
 		}
 	}
 
-	return PNG.sync.write(png)
+	return png.pack()
 }
 
 // const trace = <T>(x: T): T => (console.log('trace', x), x)
@@ -213,7 +192,7 @@ const getRainData = async (lat: number, lon: number) => {
 export const rain = async (
 	kakaoToken: string,
 	keyword: string,
-): Promise<{ message: string; graph?: Buffer }> => {
+): Promise<{ message: string; graph?: Uint8Array }> => {
 	const { lat, lng, address } = await mapSearch(kakaoToken, keyword)
 	const { data } = await getRainData(+lat, +lng)
 

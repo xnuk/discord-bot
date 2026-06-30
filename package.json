@@ -12,12 +12,10 @@
 		"format": "oxfmt src/"
 	},
 	"dependencies": {
-		"discord-interactions": "^4.4.0",
-		"pngjs": "^7.0.0"
+		"discord-interactions": "^4.4.0"
 	},
 	"devDependencies": {
 		"@types/node": "^25.9.1",
-		"@types/pngjs": "^6.0.5",
 		"@types/service-worker-mock": "^2.0.4",
 		"@xnuk/tsconfig": "^4.1.0",
 		"discord-api-types": "^0.38.48",
